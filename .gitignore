@@ -8,6 +8,8 @@ yarn-error.log
 .env.*
 !.env.local
 !.env.docker
+!.env.reef-testnet
+!.env.reef-mainnet
 .DS_Store
 /.clinic
 **.log
