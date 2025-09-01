@@ -34,6 +34,7 @@ import tempTypesBundle from './override-types/typesBundle';
 import { parseArgs } from './parseArgs';
 import { SidecarConfig } from './SidecarConfig';
 import Metrics_App from './util/metrics';
+import { network } from '@reef-chain/util-lib';
 
 async function main() {
 	const { config } = SidecarConfig;
@@ -43,19 +44,24 @@ async function main() {
 
 	logger.info(`Version: ${packageJSON.version}`);
 
-	const { TYPES_BUNDLE, TYPES_SPEC, TYPES_CHAIN, TYPES } = config.SUBSTRATE;
+	// const { TYPES_BUNDLE, TYPES_SPEC, TYPES_CHAIN, TYPES } = config.SUBSTRATE;
+
+	const provider = await network.initProvider(config.SUBSTRATE.URL);
+
+	const api = provider.api;
+
 	// Instantiate a web socket connection to the node and load types
-	const api = await ApiPromise.create({
-		provider: config.SUBSTRATE.URL.startsWith('http')
-			? new HttpProvider(config.SUBSTRATE.URL)
-			: new WsProvider(config.SUBSTRATE.URL),
-		/* eslint-disable @typescript-eslint/no-var-requires */
-		typesBundle: TYPES_BUNDLE ? (require(TYPES_BUNDLE) as OverrideBundleType) : (tempTypesBundle as OverrideBundleType),
-		typesChain: TYPES_CHAIN ? (require(TYPES_CHAIN) as Record<string, RegistryTypes>) : undefined,
-		typesSpec: TYPES_SPEC ? (require(TYPES_SPEC) as Record<string, RegistryTypes>) : undefined,
-		types: TYPES ? (require(TYPES) as RegistryTypes) : undefined,
-		/* eslint-enable @typescript-eslint/no-var-requires */
-	});
+	// const api = await ApiPromise.create({
+	// 	provider: config.SUBSTRATE.URL.startsWith('http')
+	// 		? new HttpProvider(config.SUBSTRATE.URL)
+	// 		: new WsProvider(config.SUBSTRATE.URL),
+	// 	/* eslint-disable @typescript-eslint/no-var-requires */
+	// 	typesBundle: TYPES_BUNDLE ? (require(TYPES_BUNDLE) as OverrideBundleType) : (tempTypesBundle as OverrideBundleType),
+	// 	typesChain: TYPES_CHAIN ? (require(TYPES_CHAIN) as Record<string, RegistryTypes>) : undefined,
+	// 	typesSpec: TYPES_SPEC ? (require(TYPES_SPEC) as Record<string, RegistryTypes>) : undefined,
+	// 	types: TYPES ? (require(TYPES) as RegistryTypes) : undefined,
+	// 	/* eslint-enable @typescript-eslint/no-var-requires */
+	// });
 
 	// Gather some basic details about the node so we can display a nice message
 	const [chainName, { implName, specName }] = await Promise.all([
